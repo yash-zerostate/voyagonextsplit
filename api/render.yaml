@@ -1,0 +1,42 @@
+# Render blueprint for the Voyago API.
+#
+# This file sits inside `api/`, so when you create the service point Render's
+# "Root Directory" at `api` — the repo also contains the Next.js frontend,
+# which deploys separately to Vercel.
+services:
+  - type: web
+    name: voyago-api
+    runtime: node
+    plan: free
+    rootDir: api
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render sets PORT itself; the app reads it.
+      - key: MONGODB_URI
+        sync: false # set in the Render dashboard — never commit this
+      - key: MONGODB_DB
+        value: voyago_split
+      - key: AUTH_JWT_SECRET
+        sync: false
+      - key: ACCESS_TOKEN_TTL_MIN
+        value: "15"
+      - key: REFRESH_TOKEN_TTL_DAYS
+        value: "30"
+      # The deployed frontend origin — CORS allows exactly this.
+      - key: WEB_ORIGIN
+        sync: false # e.g. https://voyagonextsplit.vercel.app
+      # Cross-site cookies require BOTH of these in production. The app refuses
+      # to boot with sameSite=none and secure=false, because browsers would
+      # silently drop the cookie and login would appear to do nothing.
+      - key: COOKIE_SAMESITE
+        value: none
+      - key: COOKIE_SECURE
+        value: "true"
+      # Leave empty unless the site and API share a parent domain, in which
+      # case set it to that parent (e.g. .acme.com) and use sameSite=lax.
+      - key: COOKIE_DOMAIN
+        value: ""

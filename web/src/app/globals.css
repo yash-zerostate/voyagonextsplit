@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-sand-50 text-deep-900 antialiased;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-6;
+  }
+  .card {
+    @apply rounded-3xl border border-sand-200 bg-white p-6 shadow-[0_18px_40px_-32px_rgba(15,41,38,0.6)];
+  }
+  .input {
+    @apply w-full rounded-2xl border border-sand-200 bg-white px-4 py-2.5 text-sm text-deep-900
+           outline-none transition placeholder:text-deep-900/40 focus:border-deep-700 focus:ring-2 focus:ring-deep-700/15;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wider text-deep-700/70;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition
+           disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-deep-800 text-sand-50 hover:bg-deep-900;
+  }
+  .btn-accent {
+    @apply btn bg-clay-500 text-white hover:bg-clay-600;
+  }
+  .btn-ghost {
+    @apply btn border border-sand-200 bg-white text-deep-800 hover:border-deep-700/40;
+  }
+  .pill {
+    @apply inline-flex items-center rounded-full bg-sand-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-deep-700;
+  }
+  .field-error {
+    @apply mt-1 text-xs text-clay-600;
+  }
+}
