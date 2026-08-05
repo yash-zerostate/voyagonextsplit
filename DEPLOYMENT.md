@@ -50,6 +50,12 @@ returns 200 but the user is never signed in") is miserable to debug.
 | Root Directory | `web` |
 | Framework preset | Next.js |
 
+`web/vercel.json` pins the framework, because Vercel re-runs detection after you
+change the Root Directory and can land on "Other". When that happens the build
+itself succeeds and then fails with `No Output Directory named "public"` — the
+"Other" preset looks for `public/`, while Next.js emits `.next`. If you see that
+error, set Framework Preset to Next.js in Settings → Build and Deployment.
+
 Environment variables — **and this is the part that actually matters**:
 
 ```
