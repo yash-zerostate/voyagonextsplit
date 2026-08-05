@@ -21,8 +21,10 @@ function claimsFor(user: UserDoc, familyId: string): AccessClaims {
     sub: String(user._id),
     email: user.email,
     name: user.name,
+    active: user.active !== false,
+    plan: user.plan as AccessClaims["plan"],
     role: user.role as AccessClaims["role"],
-    tier: user.tier as AccessClaims["tier"],
+    riskScore: user.riskScore,
     sid: familyId,
   };
 }

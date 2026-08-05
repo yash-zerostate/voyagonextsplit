@@ -5,6 +5,10 @@ import { useState } from "react";
 
 import { browserFetch } from "@/lib/api.client";
 
+const PLAN_OPTIONS = ["free", "pro", "enterprise"] as const;
+const ROLE_OPTIONS = ["developer", "security", "marketing", "compliance"] as const;
+const RISK_SCORE_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+
 export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: string }) {
   const router = useRouter();
   const [fields, setFields] = useState<Record<string, string>>({});
@@ -45,32 +49,6 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
         </p>
       )}
 
-      {mode === "signup" && (
-        <>
-          <div>
-            <label className="label" htmlFor="name">
-              Full name
-            </label>
-            <input id="name" name="name" className="input" autoComplete="name" required />
-            {fields.name && <p className="field-error">{fields.name}</p>}
-          </div>
-          <div>
-            <label className="label" htmlFor="country">
-              Country code
-            </label>
-            <input
-              id="country"
-              name="country"
-              className="input"
-              maxLength={2}
-              defaultValue="IN"
-              required
-            />
-            {fields.country && <p className="field-error">{fields.country}</p>}
-          </div>
-        </>
-      )}
-
       <div>
         <label className="label" htmlFor="email">
           Email
@@ -92,12 +70,88 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
           required
         />
         {fields.password && <p className="field-error">{fields.password}</p>}
-        {mode === "signup" && !fields.password && (
-          <p className="mt-1 text-xs text-deep-800/50">
-            At least 10 characters, with an uppercase letter and a number.
-          </p>
-        )}
       </div>
+
+      {mode === "signup" && (
+        <>
+          <div>
+            <label className="label" htmlFor="name">
+              Full name <span className="normal-case text-deep-800/40">(optional)</span>
+            </label>
+            <input id="name" name="name" className="input" autoComplete="name" />
+            {fields.name && <p className="field-error">{fields.name}</p>}
+          </div>
+
+          <div className="rounded-2xl border border-sand-200 bg-sand-100/60 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-deep-700/70">
+              Profile attributes
+            </p>
+            <p className="mt-1 text-xs text-deep-800/50">
+              All optional — pick any combination to create a test account with those attributes.
+            </p>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="label" htmlFor="plan">
+                  Plan
+                </label>
+                <select id="plan" name="plan" className="input" defaultValue="free">
+                  {PLAN_OPTIONS.map((plan) => (
+                    <option key={plan} value={plan}>
+                      {plan}
+                    </option>
+                  ))}
+                </select>
+                {fields.plan && <p className="field-error">{fields.plan}</p>}
+              </div>
+
+              <div>
+                <label className="label" htmlFor="role">
+                  Role
+                </label>
+                <select id="role" name="role" className="input" defaultValue="developer">
+                  {ROLE_OPTIONS.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+                {fields.role && <p className="field-error">{fields.role}</p>}
+              </div>
+
+              <div>
+                <label className="label" htmlFor="riskScore">
+                  Risk score
+                </label>
+                <select id="riskScore" name="riskScore" className="input" defaultValue="1">
+                  {RISK_SCORE_OPTIONS.map((score) => (
+                    <option key={score} value={score}>
+                      {score}
+                    </option>
+                  ))}
+                </select>
+                {fields.riskScore && <p className="field-error">{fields.riskScore}</p>}
+              </div>
+
+              <div>
+                <label className="label" htmlFor="active">
+                  Active
+                </label>
+                <select id="active" name="active" className="input" defaultValue="yes">
+                  <option value="yes">yes</option>
+                  <option value="no">no</option>
+                </select>
+                {fields.active && <p className="field-error">{fields.active}</p>}
+              </div>
+            </div>
+
+            <p className="mt-3 text-xs text-deep-800/50">
+              The plan you pick decides which itineraries you can book — the API enforces it, not
+              the button.
+            </p>
+          </div>
+        </>
+      )}
 
       <button type="submit" className="btn-primary w-full" disabled={submitting}>
         {submitting ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}

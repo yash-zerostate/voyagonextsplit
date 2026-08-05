@@ -11,9 +11,9 @@ const destinationSchema = new Schema(
     basePriceInr: { type: Number, required: true, min: 0 },
     rating: { type: Number, default: 4.5, min: 0, max: 5 },
     heroEmoji: { type: String, default: "🏝️" },
-    // Some itineraries only open to paid tiers — a real gate the frontend has to
+    // Some itineraries only open to paid plans — a real gate the frontend has to
     // respect and the API actually enforces at booking time.
-    minimumTier: { type: String, enum: ["explorer", "voyager", "elite"], default: "explorer" },
+    minimumPlan: { type: String, enum: ["free", "pro", "enterprise"], default: "free" },
     seatsLeft: { type: Number, default: 20, min: 0 },
   },
   { timestamps: true },

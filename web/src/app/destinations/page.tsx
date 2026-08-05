@@ -21,11 +21,11 @@ type Destination = {
   basePriceInr: number;
   rating: number;
   heroEmoji: string;
-  minimumTier: "explorer" | "voyager" | "elite";
+  minimumPlan: "free" | "pro" | "enterprise";
   seatsLeft: number;
 };
 
-const TIER_RANK = { explorer: 0, voyager: 1, elite: 2 } as const;
+const PLAN_RANK = { free: 0, pro: 1, enterprise: 2 } as const;
 
 export default async function DestinationsPage({
   searchParams,
@@ -107,7 +107,7 @@ export default async function DestinationsPage({
               <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {catalogue.data.destinations.map((destination) => {
                   const locked =
-                    !user || TIER_RANK[user.tier] < TIER_RANK[destination.minimumTier];
+                    !user || PLAN_RANK[user.plan] < PLAN_RANK[destination.minimumPlan];
                   return (
                     <article key={destination.id} className="card flex flex-col">
                       <div className="flex items-start justify-between">
@@ -136,7 +136,7 @@ export default async function DestinationsPage({
 
                         {user ? (
                           locked ? (
-                            <span className="pill">{destination.minimumTier} only</span>
+                            <span className="pill">{destination.minimumPlan} only</span>
                           ) : (
                             <BookingDialog
                               destinationId={destination.id}

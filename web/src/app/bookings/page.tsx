@@ -39,8 +39,8 @@ export default async function BookingsPage() {
           <div>
             <h1 className="text-2xl font-semibold text-deep-900">Your trips</h1>
             <p className="mt-1 text-sm text-deep-800/60">
-              {user.loyaltyPoints.toLocaleString("en-IN")} loyalty points ·{" "}
-              <span className="uppercase">{user.tier}</span> tier
+              <span className="uppercase">{user.plan}</span> plan · {user.role} · risk{" "}
+              {user.riskScore} · {user.active ? "active" : "inactive"}
             </p>
           </div>
           <Link href="/destinations" className="btn-primary">

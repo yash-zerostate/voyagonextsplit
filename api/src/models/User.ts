@@ -1,7 +1,11 @@
 import { Schema, model, type InferSchemaType, type Model } from "mongoose";
 
-export const TIERS = ["explorer", "voyager", "elite"] as const;
-export const ROLES = ["traveller", "agent"] as const;
+/**
+ * The six attributes below are the shared user profile across all three demo
+ * apps, so a rule written against one works against the others unchanged.
+ */
+export const PLANS = ["free", "pro", "enterprise"] as const;
+export const ROLES = ["developer", "security", "marketing", "compliance"] as const;
 
 const userSchema = new Schema(
   {
@@ -9,10 +13,20 @@ const userSchema = new Schema(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     // Excluded from every query unless asked for by name.
     passwordHash: { type: String, required: true, select: false },
-    tier: { type: String, enum: TIERS, default: "explorer" },
-    role: { type: String, enum: ROLES, default: "traveller" },
-    country: { type: String, trim: true, maxlength: 2, default: "IN" },
-    loyaltyPoints: { type: Number, default: 0, min: 0 },
+    /** Deactivated accounts cannot sign in, and their live sessions stop refreshing. */
+    active: { type: Boolean, default: true },
+    plan: { type: String, enum: PLANS, default: "free" },
+    role: { type: String, enum: ROLES, default: "developer" },
+    riskScore: {
+      type: Number,
+      default: 1,
+      min: 1,
+      max: 9,
+      validate: {
+        validator: Number.isInteger,
+        message: "riskScore must be a whole number between 1 and 9",
+      },
+    },
     lastLoginAt: { type: Date, default: null },
     failedLoginCount: { type: Number, default: 0 },
     lockedUntil: { type: Date, default: null },
@@ -29,9 +43,9 @@ export function publicUser(user: UserDoc) {
     id: String(user._id),
     name: user.name,
     email: user.email,
-    tier: user.tier,
+    active: user.active !== false,
+    plan: user.plan,
     role: user.role,
-    country: user.country,
-    loyaltyPoints: user.loyaltyPoints,
+    riskScore: user.riskScore,
   };
 }

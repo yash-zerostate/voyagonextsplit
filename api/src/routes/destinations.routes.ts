@@ -38,7 +38,7 @@ destinationsRouter.get("/", async (req, res) => {
       basePriceInr: destination.basePriceInr,
       rating: destination.rating,
       heroEmoji: destination.heroEmoji,
-      minimumTier: destination.minimumTier,
+      minimumPlan: destination.minimumPlan,
       seatsLeft: destination.seatsLeft,
     })),
     regions: await Destination.distinct("region"),

@@ -4,12 +4,15 @@ import jwt from "jsonwebtoken";
 
 import { config } from "../config/env.js";
 
+/** Mirrors the shared user profile, so the claim names match the other apps. */
 export type AccessClaims = {
   sub: string;
   email: string;
   name: string;
-  role: "traveller" | "agent";
-  tier: "explorer" | "voyager" | "elite";
+  active: boolean;
+  plan: "free" | "pro" | "enterprise";
+  role: "developer" | "security" | "marketing" | "compliance";
+  riskScore: number;
   sid: string;
 };
 
@@ -40,8 +43,10 @@ export function verifyAccessToken(token: string): AccessClaims | null {
       sub: String(payload.sub),
       email: String(payload.email ?? ""),
       name: String(payload.name ?? ""),
-      role: (payload.role as AccessClaims["role"]) ?? "traveller",
-      tier: (payload.tier as AccessClaims["tier"]) ?? "explorer",
+      active: payload.active !== false,
+      plan: (payload.plan as AccessClaims["plan"]) ?? "free",
+      role: (payload.role as AccessClaims["role"]) ?? "developer",
+      riskScore: typeof payload.riskScore === "number" ? payload.riskScore : 1,
       sid: String(payload.sid ?? ""),
     };
   } catch {

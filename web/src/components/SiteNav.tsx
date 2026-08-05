@@ -16,9 +16,14 @@ export function SiteNav({ user }: { user: SessionUser | null }) {
               Destinations
             </Link>
             {user && (
-              <Link href="/bookings" className="transition hover:text-deep-900">
-                My trips
-              </Link>
+              <>
+                <Link href="/bookings" className="transition hover:text-deep-900">
+                  My trips
+                </Link>
+                <Link href="/profile" className="transition hover:text-deep-900">
+                  Profile
+                </Link>
+              </>
             )}
           </nav>
         </div>
@@ -27,7 +32,8 @@ export function SiteNav({ user }: { user: SessionUser | null }) {
           {user ? (
             <>
               <span className="hidden text-xs text-deep-800/60 sm:inline">
-                {user.name} · <span className="uppercase">{user.tier}</span>
+                {user.name} · <span className="uppercase">{user.plan}</span> · {user.role} · risk{" "}
+                {user.riskScore}
               </span>
               <SignOutButton />
             </>

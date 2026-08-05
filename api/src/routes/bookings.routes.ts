@@ -11,7 +11,8 @@ import { Booking } from "../models/Booking.js";
 import { Destination } from "../models/Destination.js";
 import { User } from "../models/User.js";
 
-const TIER_RANK: Record<string, number> = { explorer: 0, voyager: 1, elite: 2 };
+/** Ordering for the plan gate — a higher plan can book anything a lower one can. */
+const PLAN_RANK: Record<string, number> = { free: 0, pro: 1, enterprise: 2 };
 
 const createBookingSchema = z.object({
   destinationId: z.string().refine(Types.ObjectId.isValid, "Pick a destination"),
@@ -67,16 +68,16 @@ bookingsRouter.post("/", validateBody(createBookingSchema), async (req, res) => 
   const destination = await Destination.findById(destinationId);
   if (!destination) throw new HttpError(404, "not_found", "That destination no longer exists.");
 
-  // Tier gate and seat count are enforced here, not in the UI — the frontend
+  // Plan gate and seat count are enforced here, not in the UI — the frontend
   // only hides the button, this is what actually stops the request.
   const user = await User.findById(req.auth!.sub);
   if (!user) throw new HttpError(401, "unauthenticated", "Sign in to continue.");
 
-  if (TIER_RANK[user.tier] < TIER_RANK[destination.minimumTier]) {
+  if (PLAN_RANK[user.plan] < PLAN_RANK[destination.minimumPlan]) {
     throw new HttpError(
       403,
-      "tier_required",
-      `This itinerary is open to ${destination.minimumTier} members and above.`,
+      "plan_required",
+      `This itinerary is open to ${destination.minimumPlan} members and above.`,
     );
   }
 
@@ -97,9 +98,6 @@ bookingsRouter.post("/", validateBody(createBookingSchema), async (req, res) => 
 
   destination.seatsLeft -= travellers;
   await destination.save();
-
-  user.loyaltyPoints += Math.round(totalInr / 100);
-  await user.save();
 
   res.status(201).json({
     booking: {

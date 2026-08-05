@@ -22,7 +22,7 @@ export default async function SignupPage() {
           <div className="card">
             <h1 className="text-xl font-semibold text-deep-900">Join Voyago</h1>
             <p className="mt-1 text-sm text-deep-800/60">
-              Explorer tier is free. Voyager and Elite itineraries unlock as you travel.
+              Free plan gets the open itineraries. Pro and Enterprise unlock the rest.
             </p>
             <div className="mt-6">
               <AuthForm mode="signup" next="/destinations" />

@@ -1,13 +1,14 @@
 import { serverFetch } from "@/lib/api.server";
 
+/** The shared user profile — identical field names across all three demo apps. */
 export type SessionUser = {
   id: string;
   name: string;
   email: string;
-  tier: "explorer" | "voyager" | "elite";
-  role: "traveller" | "agent";
-  country: string;
-  loyaltyPoints: number;
+  active: boolean;
+  plan: "free" | "pro" | "enterprise";
+  role: "developer" | "security" | "marketing" | "compliance";
+  riskScore: number;
 };
 
 /**

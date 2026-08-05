@@ -34,6 +34,7 @@ npm run dev               # http://localhost:4002
 | `/login` | public | `POST /auth/login` from the browser |
 | `/signup` | public | `POST /auth/register` from the browser |
 | `/bookings` | **protected** | `GET /bookings`, cancel via `POST /bookings/:id/cancel` |
+| `/profile` | **protected** | All six profile attributes, editable via `PATCH /auth/me` |
 
 ## API (`api/`)
 
@@ -44,8 +45,9 @@ npm run dev               # http://localhost:4002
 | `POST` | `/auth/refresh` | refresh cookie; rotates with reuse detection |
 | `POST` | `/auth/logout` | revokes the whole refresh family |
 | `GET`  | `/auth/me` | access cookie or `Bearer` |
+| `PATCH` | `/auth/me` | edit the profile |
 | `GET`  | `/destinations` | public |
-| `GET/POST` | `/bookings` | **required** — enforces tier gate and seat count |
+| `GET/POST` | `/bookings` | **required** — enforces the plan gate and seat count |
 | `POST` | `/bookings/:id/cancel` | **required** — ownership is part of the query |
 | `GET`  | `/health` | public |
 
@@ -78,9 +80,10 @@ The site is on one origin and the API on another, so:
 
 ## Seeded accounts
 
-`admin@example.com` (elite/agent), `pro@example.com` (voyager),
-`free@example.com` (explorer) — all with password `Password123!`.
+See the root README for the full attribute matrix — all use password
+`Password123!`.
 
 Sign in as `free@example.com` and try to book *Namib Private Camp*: the UI shows
-"elite only", and if you call the API directly it answers `403 tier_required`.
-The gate is real, not cosmetic.
+"enterprise only", and calling the API directly answers `403 plan_required`. The
+gate is real, not cosmetic — raise the plan on `/profile` and the same booking
+goes through.
