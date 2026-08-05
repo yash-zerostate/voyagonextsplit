@@ -10,6 +10,10 @@ const API_ORIGIN =
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // No next/image anywhere in this app, and the optimizer drags in
+  // sharp/libvips — the source of every remaining `npm audit` advisory.
+  // Disabling it drops that surface instead of shipping an unused vulnerable path.
+  images: { unoptimized: true },
 
   /**
    * Same-origin proxy, for the deployment where the site and the API sit on
