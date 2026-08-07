@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             rewrite, so nothing here reads cookies and pages stay cacheable. */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script
-          src="https://yash-loader-worker.pushkarnagwekar.workers.dev/boot?d=voyagonextsplit.vercel.app"
+          src="https://yash-loader-worker.pushkarnagwekar.workers.dev/boot?d=voyagonext.vercel.app"
           data-api="https://app.pretasystems.com/v1/api"
           data-ctx-cookie="preta_ctx"
         ></script>
