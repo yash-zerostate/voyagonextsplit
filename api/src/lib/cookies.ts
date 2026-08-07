@@ -6,6 +6,15 @@ export const ACCESS_COOKIE = "voyago_access";
 export const REFRESH_COOKIE = "voyago_refresh";
 /** No secret in it — lets the Next.js middleware decide whether to try a refresh. */
 export const SESSION_HINT_COOKIE = "voyago_session";
+/**
+ * The Preta context JWT (`data-ctx-cookie`). Like SESSION_HINT_COOKIE it is
+ * deliberately NOT httpOnly — the loader runs in the browser and has to read it.
+ *
+ * That is safe because of what is inside: a *signed* token carrying only
+ * targeting attributes. Editing it breaks the signature, and it authenticates
+ * nothing against this API — the real session stays in the two cookies above.
+ */
+export const PRETA_COOKIE = "preta_ctx";
 
 /**
  * The site and this API are different origins. In production they share a
@@ -26,9 +35,22 @@ function baseOptions(): CookieOptions {
   };
 }
 
+/**
+ * Written on its own from PATCH /auth/me too, where the session is untouched but
+ * the attributes just changed — hence a separate exported function.
+ */
+export function setPretaCookie(res: Response, token: string | null): void {
+  if (!token) return; // no key configured — the visitor is simply anonymous to Preta
+  res.cookie(PRETA_COOKIE, token, {
+    ...baseOptions(),
+    httpOnly: false, // the loader must be able to read it
+    maxAge: config.accessTtlMinutes * 60 * 1000,
+  });
+}
+
 export function setAuthCookies(
   res: Response,
-  tokens: { accessToken: string; refreshToken: string },
+  tokens: { accessToken: string; refreshToken: string; pretaToken?: string | null },
 ): void {
   res.cookie(ACCESS_COOKIE, tokens.accessToken, {
     ...baseOptions(),
@@ -43,6 +65,9 @@ export function setAuthCookies(
     httpOnly: false, // the frontend reads this one to render the right nav
     maxAge: config.refreshTtlDays * 24 * 60 * 60 * 1000,
   });
+  // Refreshed on the same schedule as the access token, so it can never go stale
+  // while the session is alive — login, register and every refresh pass through here.
+  setPretaCookie(res, tokens.pretaToken ?? null);
 }
 
 export function clearAuthCookies(res: Response): void {
@@ -50,4 +75,7 @@ export function clearAuthCookies(res: Response): void {
   res.clearCookie(ACCESS_COOKIE, options);
   res.clearCookie(REFRESH_COOKIE, options);
   res.clearCookie(SESSION_HINT_COOKIE, { ...options, httpOnly: false });
+  // Clearing this is what removes personalised elements at logout — the loader
+  // finds no cookie, sends no context, and the edge matches nothing.
+  res.clearCookie(PRETA_COOKIE, { ...options, httpOnly: false });
 }

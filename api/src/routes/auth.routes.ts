@@ -2,8 +2,9 @@ import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
 
-import { REFRESH_COOKIE, clearAuthCookies, setAuthCookies } from "../lib/cookies.js";
+import { REFRESH_COOKIE, clearAuthCookies, setAuthCookies, setPretaCookie } from "../lib/cookies.js";
 import { fakeVerify, hashPassword, verifyPassword } from "../lib/password.js";
+import { createPretaContextToken } from "../lib/preta-token.js";
 import { issueSession, revokeSession, rotateSession } from "../lib/sessions.js";
 import { readAuth, requireAuth } from "../middleware/auth.js";
 import { validateBody } from "../middleware/validate.js";
@@ -182,6 +183,18 @@ authRouter.patch("/me", readAuth, requireAuth, validateBody(profileSchema), asyn
     res.status(401).json({ error: { code: "unauthenticated", message: "Sign in to continue." } });
     return;
   }
+  // Re-sign the Preta cookie straight away. Without this the visitor keeps their
+  // old attributes for up to a full access-token lifetime, which makes flipping
+  // plan or role on this page look like it did nothing.
+  setPretaCookie(
+    res,
+    createPretaContextToken({
+      plan: String(user.plan),
+      role: String(user.role),
+      active: user.active !== false,
+      risk_score: user.riskScore,
+    }),
+  );
   res.json({ user: publicUser(user) });
 });
 

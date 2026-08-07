@@ -1,4 +1,5 @@
 import { config } from "../config/env.js";
+import { createPretaContextToken } from "./preta-token.js";
 import { RefreshToken } from "../models/RefreshToken.js";
 import { User, type UserDoc } from "../models/User.js";
 import {
@@ -9,8 +10,23 @@ import {
   type AccessClaims,
 } from "./tokens.js";
 
-export type IssuedTokens = { accessToken: string; refreshToken: string };
+export type IssuedTokens = {
+  accessToken: string;
+  refreshToken: string;
+  /** Signed Preta context JWT — goes into a readable cookie the loader reads. */
+  pretaToken: string | null;
+};
 export type RequestContext = { userAgent?: string; ip?: string };
+
+/** The attributes Preta targets on, taken straight off the user row. */
+function pretaAttributes(user: UserDoc) {
+  return {
+    plan: String(user.plan),
+    role: String(user.role),
+    active: user.active !== false,
+    risk_score: user.riskScore,
+  };
+}
 
 function refreshExpiry(): Date {
   return new Date(Date.now() + config.refreshTtlDays * 24 * 60 * 60 * 1000);
@@ -42,7 +58,11 @@ export async function issueSession(user: UserDoc, ctx: RequestContext = {}): Pro
     ip: ctx.ip ?? "",
   });
 
-  return { accessToken: signAccessToken(claimsFor(user, familyId)), refreshToken };
+  return {
+    accessToken: signAccessToken(claimsFor(user, familyId)),
+    refreshToken,
+    pretaToken: createPretaContextToken(pretaAttributes(user)),
+  };
 }
 
 export type RotateResult =
@@ -104,6 +124,9 @@ export async function rotateSession(
     tokens: {
       accessToken: signAccessToken(claimsFor(user, record.familyId)),
       refreshToken: nextToken,
+      // Re-signed from the LIVE user row, so an attribute changed since login is
+      // picked up on the next refresh rather than waiting for a re-login.
+      pretaToken: createPretaContextToken(pretaAttributes(user)),
     },
   };
 }

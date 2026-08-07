@@ -24,6 +24,12 @@ services:
         value: voyago_split
       - key: AUTH_JWT_SECRET
         sync: false
+      # Signs the Preta context JWT that goes into the readable `preta_ctx`
+      # cookie. Missing → no token is signed, so Preta sees every visitor as
+      # anonymous and personalised elements never appear. Login is unaffected.
+      # The matching public half is api/voyago-public.pem.
+      - key: PRETA_PRIVATE_KEY
+        sync: false
       - key: ACCESS_TOKEN_TTL_MIN
         value: "15"
       - key: REFRESH_TOKEN_TTL_DAYS
